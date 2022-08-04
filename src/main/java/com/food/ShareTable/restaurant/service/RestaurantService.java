@@ -25,7 +25,15 @@ public class RestaurantService {
         return List.of(restaurant);
     }
 
-    public Restaurant insertRestaurant(Restaurant restaurant){
+    public Restaurant insertRestaurant(Restaurant restaurant) {
         return restaurantRepository.insert(restaurant);
+    }
+
+    public List<Restaurant> getRestaurantByName(String name) {
+        return restaurantRepository.findByName(name);
+    }
+
+    public Restaurant getRestaurantById(String id) {
+        return restaurantRepository.findById(id).get();
     }
 }
