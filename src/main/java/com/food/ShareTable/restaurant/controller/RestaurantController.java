@@ -1,47 +1,57 @@
 package com.food.ShareTable.restaurant.controller;
 
+import com.food.ShareTable.restaurant.dto.RestaurantDto;
 import com.food.ShareTable.restaurant.entity.Restaurant;
+import com.food.ShareTable.restaurant.mapper.RestaurantMapper;
 import com.food.ShareTable.restaurant.service.RestaurantService;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/v1/restaurant")
 public class RestaurantController {
 
     private final RestaurantService restaurantService;
+    private final RestaurantMapper restaurantMapper;
 
     @Autowired
-    public RestaurantController(RestaurantService restaurantService) {
+    public RestaurantController(RestaurantService restaurantService, RestaurantMapper restaurantMapper) {
         this.restaurantService = restaurantService;
+        this.restaurantMapper = restaurantMapper;
     }
-
 
     @GetMapping
-    public List<Restaurant> getRestaurants() {
-        return restaurantService.getAllRestaurant();
+    public List<RestaurantDto> getRestaurants() {
+        return restaurantService.getAllRestaurant().stream()
+                .map(restaurantMapper::toDto)
+                .collect(Collectors.toList());
     }
 
-    @PostMapping
-    public Restaurant create() {
-        return restaurantService.insertRestaurant(new Restaurant("hello", "world"));
+    @PostMapping(consumes = {"application/json"})
+    public RestaurantDto create(@NonNull @RequestBody RestaurantDto restaurantDto) {
+        return restaurantMapper.toDto(restaurantService.insertRestaurant(restaurantMapper.toEntity(restaurantDto)));
     }
-
-//    @GetMapping("/{name}")
-//    public List<Restaurant> getRestaurantsByName(@PathVariable String name) {
-//        return restaurantService.getRestaurantByName(name);
-//    }
 
     //cannot exist more than one get mapping path
+    //may use id for pathvariable, others for requestparam
     @GetMapping("/{id}")
-    public Restaurant getRestaurantById(@PathVariable String id){
-        System.out.println(id);
-        return restaurantService.getRestaurantById(id);
+    public RestaurantDto getRestaurantById(@PathVariable String id) {
+        return restaurantMapper.toDto(restaurantService.getRestaurantById(id));
     }
 
-    //may use id for pathvariable, others for requestparam
+    @RequestMapping("/info")
+    @ResponseBody
+    public List<RestaurantDto> getRestaurantsByName(@RequestParam(name = "name") String name) {
+        return restaurantService.getRestaurantByName(name).stream()
+                .map(restaurantMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+
 
 
 }

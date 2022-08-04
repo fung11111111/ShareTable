@@ -18,11 +18,7 @@ public class RestaurantService {
 
 
     public List<Restaurant> getAllRestaurant() {
-        Restaurant restaurant = new Restaurant();
-        restaurant.setId("obj1234");
-        restaurant.setName("Happy Gathering");
-        restaurant.setAddress("RM E, 2/F, Moko Building, Mok Kok, KL");
-        return List.of(restaurant);
+        return restaurantRepository.findAll();
     }
 
     public Restaurant insertRestaurant(Restaurant restaurant) {
