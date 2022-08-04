@@ -1,0 +1,8 @@
+spring:
+  main:
+    lazy-initialization: true
+  data:
+    mongodb:
+      uri: mongodb+srv://adminuser:adminuser@cluster0.2smm7.mongodb.net/?retryWrites=true&w=majority
+      database: Restaurant
+      auto-index-creation: true
