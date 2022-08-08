@@ -2,6 +2,7 @@ package com.food.ShareTable.restaurant.controller;
 
 import com.food.ShareTable.restaurant.dto.RestaurantDto;
 import com.food.ShareTable.restaurant.entity.Restaurant;
+import com.food.ShareTable.restaurant.exception.RestaurantExistsException;
 import com.food.ShareTable.restaurant.mapper.RestaurantMapper;
 import com.food.ShareTable.restaurant.service.RestaurantService;
 import lombok.NonNull;
@@ -31,8 +32,8 @@ public class RestaurantController {
                 .collect(Collectors.toList());
     }
 
-    @PostMapping(consumes = {"application/json"})
-    public RestaurantDto create(@NonNull @RequestBody RestaurantDto restaurantDto) {
+    @PostMapping
+    public RestaurantDto create(@NonNull @RequestBody RestaurantDto restaurantDto) throws RestaurantExistsException {
         return restaurantMapper.toDto(restaurantService.insertRestaurant(restaurantMapper.toEntity(restaurantDto)));
     }
 
@@ -50,8 +51,6 @@ public class RestaurantController {
                 .map(restaurantMapper::toDto)
                 .collect(Collectors.toList());
     }
-
-
 
 
 }

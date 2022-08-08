@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface RestaurantRepository extends MongoRepository<Restaurant, String> {
     List<Restaurant> findByName(String name);
+
+    List<Restaurant> findByNameAndAddress(String name, String address);
 }
