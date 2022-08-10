@@ -27,7 +27,7 @@ public class RestaurantService {
         if (existingRestaurants != null || existingRestaurants.size() > 0) {
             throw new RestaurantExistsException();
         }
-        return restaurantRepository.save(restaurant);
+        return restaurantRepository.insert(restaurant);
     }
 
     public List<Restaurant> getRestaurantByName(String name) {
