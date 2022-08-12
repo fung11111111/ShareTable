@@ -6,6 +6,7 @@ import com.food.ShareTable.restaurant.repository.RestaurantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -24,7 +25,7 @@ public class RestaurantService {
 
     public Restaurant insertRestaurant(Restaurant restaurant) throws RestaurantExistsException{
         List<Restaurant> existingRestaurants = restaurantRepository.findByNameAndAddress(restaurant.getName(), restaurant.getAddress());
-        if (existingRestaurants != null || existingRestaurants.size() > 0) {
+        if (existingRestaurants != null && !existingRestaurants.isEmpty()) {
             throw new RestaurantExistsException();
         }
         return restaurantRepository.insert(restaurant);
