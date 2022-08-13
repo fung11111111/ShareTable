@@ -1,10 +1,10 @@
 package com.food.ShareTable.unitTest.restaurant;
 
 import com.food.ShareTable.restaurant.entity.Restaurant;
+import com.food.ShareTable.restaurant.exception.RestaurantExistsException;
 import com.food.ShareTable.restaurant.repository.RestaurantRepository;
 import com.food.ShareTable.restaurant.service.RestaurantService;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,6 +13,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -71,6 +72,17 @@ public class RestaurantUnitTest {
 
         Restaurant actual = restaurantService.insertRestaurant(expected);
         Assertions.assertEquals(expected.getName(), actual.getName());
+    }
+
+    @Test
+    public void should_throw_exception_when_insert_existing_restaurant() {
+        Mockito.when(restaurantRepository.findByNameAndAddress("Hello", "RM19, 2/F, GOOD MOKKOK, KL, HK")).thenReturn(List.of(new Restaurant("Hello", "RM19, 2/F, GOOD MOKKOK, KL, HK")));
+
+        RestaurantExistsException exception = Assertions.assertThrows(RestaurantExistsException.class, () -> {
+            restaurantService.insertRestaurant(new Restaurant("Hello", "RM19, 2/F, GOOD MOKKOK, KL, HK"));
+        });
+
+        Assertions.assertEquals("Restaurant is already existed.", exception.getLocalizedMessage());
     }
 
 }
