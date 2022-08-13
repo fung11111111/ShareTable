@@ -33,9 +33,7 @@ public class RestaurantService {
 
     public Restaurant insertRestaurant(Restaurant restaurant) throws RestaurantExistsException {
         List<Restaurant> existingRestaurants = restaurantRepository.findByNameAndAddress(restaurant.getName(), restaurant.getAddress());
-        logger.info("Info log: try to insert new restaurant");
-        logger.debug("Debug log: try to insert new restaurant");
-        logger.trace("Debug log: try to insert new restaurant");
+        logger.debug("Restaurant Service insertRestaurant name: {} and address: {}",restaurant.getName(), restaurant.getAddress());
         if (existingRestaurants != null && !existingRestaurants.isEmpty()) {
             throw new RestaurantExistsException();
         }
