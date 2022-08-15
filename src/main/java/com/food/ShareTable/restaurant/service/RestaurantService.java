@@ -3,6 +3,7 @@ package com.food.ShareTable.restaurant.service;
 import com.food.ShareTable.Common.CommonConstant;
 import com.food.ShareTable.restaurant.entity.Restaurant;
 import com.food.ShareTable.restaurant.exception.RestaurantExistsException;
+import com.food.ShareTable.restaurant.exception.RestaurantNotFoundException;
 import com.food.ShareTable.restaurant.repository.RestaurantRepository;
 import org.apache.logging.slf4j.Log4jLogger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,9 @@ public class RestaurantService {
     public CompletableFuture<Restaurant> getRestaurantByIdAsync(String id) {
         return CompletableFuture.supplyAsync(() -> {
             logger.debug("getRestaurantByIdAsync() Current threads - " + Thread.currentThread().getName());
+            if (!restaurantRepository.existsById(id)) {
+                throw new RestaurantNotFoundException();
+            }
             return restaurantRepository.findById(id).get();
         });
     }

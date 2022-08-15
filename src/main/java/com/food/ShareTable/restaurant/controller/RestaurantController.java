@@ -1,17 +1,22 @@
 package com.food.ShareTable.restaurant.controller;
 
+import com.food.ShareTable.Common.CommonConstant;
 import com.food.ShareTable.food.service.FoodService;
 import com.food.ShareTable.restaurant.dto.RestaurantDto;
 import com.food.ShareTable.restaurant.exception.RestaurantExistsException;
+import com.food.ShareTable.restaurant.exception.RestaurantNotFoundException;
 import com.food.ShareTable.restaurant.mapper.RestaurantMapper;
 import com.food.ShareTable.restaurant.service.RestaurantService;
 import lombok.NonNull;
+import org.apache.logging.slf4j.Log4jLogger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @RestController
@@ -21,6 +26,10 @@ public class RestaurantController {
     private final RestaurantService restaurantService;
     private final RestaurantMapper restaurantMapper;
     private final FoodService foodService;
+
+    @Autowired
+    @Qualifier(CommonConstant.debugLogger)
+    private Log4jLogger logger;
 
 
     @Autowired
