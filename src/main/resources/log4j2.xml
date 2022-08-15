@@ -3,6 +3,7 @@
     <Properties>
         <Property name="LOG_PATTERN">%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ} %p %m%n</Property>
         <Property name="APP_LOG_ROOT">log/</Property>
+        <Property name="DEBUG_LOGGER">shareTable_debug_log</Property>
     </Properties>
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT" follow="true">
@@ -22,7 +23,7 @@
 
     </Appenders>
     <Loggers>
-        <Logger name="com.sharetable.app" additivity="false" level="debug">
+        <Logger name="${DEBUG_LOGGER}" additivity="false" level="debug">
             <AppenderRef ref="appDebugLog" />
             <AppenderRef ref="Console" />
         </Logger>
