@@ -49,4 +49,8 @@ public class FoodService {
             return foodRepository.findFoodsByRestaurantId(id);
         });
     }
+
+    public List<Food> getFoodsByRestaurantId(String id) {
+        return foodRepository.findFoodsByRestaurantId(id);
+    }
 }

@@ -1,6 +1,7 @@
 package com.food.ShareTable.restaurant.service;
 
 import com.food.ShareTable.Common.CommonConstant;
+import com.food.ShareTable.food.service.FoodService;
 import com.food.ShareTable.restaurant.entity.Restaurant;
 import com.food.ShareTable.restaurant.exception.RestaurantExistsException;
 import com.food.ShareTable.restaurant.exception.RestaurantNotFoundException;
@@ -18,13 +19,16 @@ import java.util.concurrent.CompletableFuture;
 public class RestaurantService {
     private final RestaurantRepository restaurantRepository;
 
+    private final FoodService foodService;
+
     @Autowired
     @Qualifier(CommonConstant.debugLogger)
     private Log4jLogger logger;
 
     @Autowired
-    public RestaurantService(RestaurantRepository restaurantRepository) {
+    public RestaurantService(RestaurantRepository restaurantRepository, FoodService foodService) {
         this.restaurantRepository = restaurantRepository;
+        this.foodService = foodService;
     }
 
     public List<Restaurant> getAllRestaurant() {

@@ -1,6 +1,7 @@
 package com.food.ShareTable.restaurant.controller;
 
 import com.food.ShareTable.Common.CommonConstant;
+import com.food.ShareTable.Common.Descriptor;
 import com.food.ShareTable.food.constant.FoodConstant;
 import com.food.ShareTable.food.entity.Food;
 import com.food.ShareTable.food.service.FoodService;
@@ -28,6 +29,9 @@ public class RestaurantController {
     private final RestaurantService restaurantService;
     private final RestaurantMapper restaurantMapper;
     private final FoodService foodService;
+
+    @Autowired
+    private Descriptor descriptor;
 
     @Autowired
     @Qualifier(CommonConstant.debugLogger)
@@ -77,6 +81,22 @@ public class RestaurantController {
                 })
                 .collect(Collectors.toList());
     }
+
+    //test thenApply with fist found restaurant
+    @RequestMapping("/infoWithBreakfast")
+    @ResponseBody
+    public RestaurantDto getRestaurantsByNameWithBreakFast(@RequestParam(name = "name") String name) {
+
+        return CompletableFuture.supplyAsync(() -> {
+            return restaurantService.getRestaurantByName(name).stream().findFirst().orElseThrow(RestaurantNotFoundException::new);
+        }).thenApply(restaurant -> {
+            List<Food> lunchFoods = foodService.getFoodsByRestaurantId(restaurant.getId()).stream()
+                    .filter(f -> f.getType().equals(FoodConstant.TYPE_BREAKFAST)).collect(Collectors.toList());
+            return restaurantMapper.toDto(restaurant, lunchFoods);
+        }).join();
+
+    }
+
 
     @RequestMapping("/withFood")
     @ResponseBody
@@ -141,12 +161,10 @@ public class RestaurantController {
     @PutMapping("/{id}")
     public RestaurantDto updateRestaurantWithId(@PathVariable String id, @NonNull @RequestBody RestaurantDto restaurantDto) {
         Restaurant restaurant = restaurantMapper.toEntity(restaurantDto);
-        CompletableFuture<RestaurantDto> completableFuture = restaurantService.updateRestaurantByIdAsync(id, restaurant)
+        return restaurantService.updateRestaurantByIdAsync(id, restaurant)
                 .thenApply(res -> {
                     return restaurantMapper.toDto(res, new ArrayList<>());
-                });
-
-        return completableFuture.join();
+                }).join();
     }
 
 
