@@ -1,13 +1,17 @@
 package com.food.ShareTable.restaurant.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Document(collection = "restaurant")
 public class Restaurant {
     @Id
@@ -16,19 +20,8 @@ public class Restaurant {
     private String address;
 
 
-    public Restaurant() {
-    }
-
-    public Restaurant( String id,  String name,  String address) {
-        this.id = id;
+    public Restaurant(String name, String address) {
         this.name = name;
         this.address = address;
     }
-
-    public Restaurant(String name,  String address) {
-        this.name = name;
-        this.address = address;
-    }
-
-
 }

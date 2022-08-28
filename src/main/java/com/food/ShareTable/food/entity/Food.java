@@ -1,12 +1,16 @@
 package com.food.ShareTable.food.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Document(collection = "food")
 public class Food {
 
@@ -16,22 +20,14 @@ public class Food {
     private Integer price;
     private String type;
     private Boolean isRecommended;
+    private String restaurantId;
 
-    public Food() {
-    }
 
-    public Food(String name, Integer price, String type, Boolean isRecommended) {
+    public Food(String name, Integer price, String type, Boolean isRecommended, String restaurantId) {
         this.name = name;
         this.price = price;
         this.type = type;
         this.isRecommended = isRecommended;
-    }
-
-    public Food(String id, String name, Integer price, String type, Boolean isRecommended) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
-        this.type = type;
-        this.isRecommended = isRecommended;
+        this.restaurantId = restaurantId;
     }
 }

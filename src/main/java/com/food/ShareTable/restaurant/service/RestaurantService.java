@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -45,17 +46,25 @@ public class RestaurantService {
         return restaurantRepository.findByName(name);
     }
 
-    public Restaurant getRestaurantById(String id) {
-        return restaurantRepository.findById(id).get();
+    public Optional<Restaurant> getRestaurantById(String id) {
+        logger.debug("getRestaurantById() Current threads - " + Thread.currentThread().getName());
+        return restaurantRepository.findById(id);
     }
 
-    public CompletableFuture<Restaurant> getRestaurantByIdAsync(String id) {
+    public CompletableFuture<Optional<Restaurant>> getRestaurantByIdAsync(String id) {
         return CompletableFuture.supplyAsync(() -> {
-            logger.debug("getRestaurantByIdAsync() Current threads - " + Thread.currentThread().getName());
-            if (!restaurantRepository.existsById(id)) {
-                throw new RestaurantNotFoundException();
-            }
-            return restaurantRepository.findById(id).get();
+            logger.debug("getRestaurantByIdAsync() Current threads - {}", Thread.currentThread().getName());
+            return restaurantRepository.findById(id);
         });
+    }
+
+    public CompletableFuture<Restaurant> updateRestaurantByIdAsync(String id, Restaurant restaurant) {
+        return CompletableFuture.supplyAsync(() -> {
+            if (!restaurantRepository.existsById(id)) throw new RestaurantNotFoundException();
+
+            logger.debug("updateRestaurantByIdAsync() Current threads - {}", Thread.currentThread().getName());
+            return restaurantRepository.save(restaurant);
+        });
+
     }
 }

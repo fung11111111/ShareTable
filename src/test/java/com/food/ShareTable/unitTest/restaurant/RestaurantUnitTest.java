@@ -46,10 +46,10 @@ public class RestaurantUnitTest {
         Optional<Restaurant> expected = Optional.of(new Restaurant("1", "Hello", "RM19, 2/F, GOOD MOKKOK, KL, HK"));
         Mockito.when(restaurantRepository.findById("1")).thenReturn(expected);
 
-        Restaurant actual = restaurantService.getRestaurantById("1");
+        Optional<Restaurant> actual = restaurantService.getRestaurantById("1");
 
-        Assertions.assertEquals(expected.get().getName(), actual.getName());
-        Assertions.assertEquals(expected.get().getAddress(), actual.getAddress());
+        Assertions.assertEquals(expected.get().getName(), actual.get().getName());
+        Assertions.assertEquals(expected.get().getAddress(), actual.get().getAddress());
 
     }
 

@@ -31,10 +31,22 @@ public class FoodService {
         return foodRepository.save(food);
     }
 
-    public CompletableFuture<List<Food>> getAllFoodAsync(){
+    public List<Food> getAllFood() {
+        logger.debug("getAllFood() Current threads - {}", Thread.currentThread().getName());
+        return foodRepository.findAll();
+    }
+
+    public CompletableFuture<List<Food>> getAllFoodAsync() {
         return CompletableFuture.supplyAsync(() -> {
-            logger.debug("getAllFoodAsync() Current threads - " + Thread.currentThread().getName());
+            logger.debug("getAllFoodAsync() Current threads - {}", Thread.currentThread().getName());
             return foodRepository.findAll();
+        });
+    }
+
+    public CompletableFuture<List<Food>> getFoodsByRestaurantIdAsync(String id) {
+        return CompletableFuture.supplyAsync(() -> {
+            logger.debug("getFoodsByRestaurantIdAsync() - {}", Thread.currentThread().getName());
+            return foodRepository.findFoodsByRestaurantId(id);
         });
     }
 }
