@@ -1,6 +1,7 @@
 package com.food.ShareTable.restaurant.controller;
 
 import com.food.ShareTable.Common.CommonConstant;
+import com.food.ShareTable.food.constant.FoodConstant;
 import com.food.ShareTable.food.entity.Food;
 import com.food.ShareTable.food.service.FoodService;
 import com.food.ShareTable.restaurant.dto.RestaurantDto;
@@ -80,12 +81,61 @@ public class RestaurantController {
     @RequestMapping("/withFood")
     @ResponseBody
     public RestaurantDto getRestaurantWithFoodById(@RequestParam(name = "id") String id) {
-        CompletableFuture<RestaurantDto> completableFuture = restaurantService.getRestaurantByIdAsync(id).thenCombine(foodService.getFoodsByRestaurantIdAsync(id), (resOptional, foodList) -> {
+        return restaurantService.getRestaurantByIdAsync(id).thenCombine(foodService.getFoodsByRestaurantIdAsync(id), (resOptional, foodList) -> {
             return resOptional.map(restaurant -> {
                 return restaurantMapper.toDto(restaurant, foodList);
             }).orElseThrow(RestaurantNotFoundException::new);
-        });
-        return completableFuture.join();
+        }).join();
+    }
+
+    @RequestMapping("/withLunch")
+    @ResponseBody
+    public RestaurantDto getRestaurantWithLunchMenu(@RequestParam(name = "id") String id) {
+        return restaurantService.getRestaurantByIdAsync(id).thenCombine(foodService.getFoodsByRestaurantIdAsync(id), ((restaurantOptional, foods) -> {
+            return restaurantOptional.map(restaurant -> {
+                return restaurantMapper.toDto(restaurant, foods.stream().filter(f -> f.getType().equals(FoodConstant.TYPE_LUNCH)).collect(Collectors.toList()));
+            }).orElseThrow(RestaurantNotFoundException::new);
+        })).join();
+    }
+
+    @RequestMapping("/withDinner")
+    @ResponseBody
+    public RestaurantDto getRestaurantWithDinnerMenu(@RequestParam(name = "id") String id) {
+        return restaurantService.getRestaurantByIdAsync(id).thenCombine(foodService.getFoodsByRestaurantIdAsync(id), ((restaurantOptional, foods) -> {
+            return restaurantOptional.map(restaurant -> {
+                return restaurantMapper.toDto(restaurant, foods.stream().filter(f -> f.getType().equals(FoodConstant.TYPE_DINNER)).collect(Collectors.toList()));
+            }).orElseThrow(RestaurantNotFoundException::new);
+        })).join();
+    }
+
+    @RequestMapping("/withBreakfast")
+    @ResponseBody
+    public RestaurantDto getRestaurantWithBreakfastMenu(@RequestParam(name = "id") String id) {
+        return restaurantService.getRestaurantByIdAsync(id).thenCombine(foodService.getFoodsByRestaurantIdAsync(id), ((restaurantOptional, foods) -> {
+            return restaurantOptional.map(restaurant -> {
+                return restaurantMapper.toDto(restaurant, foods.stream().filter(f -> f.getType().equals(FoodConstant.TYPE_BREAKFAST)).collect(Collectors.toList()));
+            }).orElseThrow(RestaurantNotFoundException::new);
+        })).join();
+    }
+
+    @RequestMapping("/withTea")
+    @ResponseBody
+    public RestaurantDto getRestaurantWithTeaMenu(@RequestParam(name = "id") String id) {
+        return restaurantService.getRestaurantByIdAsync(id).thenCombine(foodService.getFoodsByRestaurantIdAsync(id), ((restaurantOptional, foods) -> {
+            return restaurantOptional.map(restaurant -> {
+                return restaurantMapper.toDto(restaurant, foods.stream().filter(f -> f.getType().equals(FoodConstant.TYPE_TEA_TIME)).collect(Collectors.toList()));
+            }).orElseThrow(RestaurantNotFoundException::new);
+        })).join();
+    }
+
+    @RequestMapping("/withRecommended")
+    @ResponseBody
+    public RestaurantDto getRestaurantWithRcdMenu(@RequestParam(name = "id") String id) {
+        return restaurantService.getRestaurantByIdAsync(id).thenCombine(foodService.getFoodsByRestaurantIdAsync(id), ((restaurantOptional, foods) -> {
+            return restaurantOptional.map(restaurant -> {
+                return restaurantMapper.toDto(restaurant, foods.stream().filter(Food::getIsRecommended).collect(Collectors.toList()));
+            }).orElseThrow(RestaurantNotFoundException::new);
+        })).join();
     }
 
     @PutMapping("/{id}")
@@ -98,5 +148,6 @@ public class RestaurantController {
 
         return completableFuture.join();
     }
+
 
 }

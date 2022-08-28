@@ -2,6 +2,7 @@ package com.food.ShareTable.unitTest.restaurant;
 
 import com.food.ShareTable.restaurant.entity.Restaurant;
 import com.food.ShareTable.restaurant.exception.RestaurantExistsException;
+import com.food.ShareTable.restaurant.exception.RestaurantNotFoundException;
 import com.food.ShareTable.restaurant.repository.RestaurantRepository;
 import com.food.ShareTable.restaurant.service.RestaurantService;
 import org.junit.jupiter.api.Assertions;
@@ -84,5 +85,17 @@ public class RestaurantUnitTest {
 
         Assertions.assertEquals("Restaurant is already existed.", exception.getLocalizedMessage());
     }
+
+    //todo: should throw in integration test
+//    @Test
+//    public void should_throw_exception_when_find_by_id_not_found() {
+//        Mockito.when(restaurantRepository.findById("1")).thenThrow(RestaurantNotFoundException.class);
+//        RestaurantNotFoundException exception = Assertions.assertThrows(RestaurantNotFoundException.class, () -> {
+//            restaurantService.getRestaurantById("1");
+//        });
+//
+//        Assertions.assertEquals("Restaurant Not Found.", exception.getLocalizedMessage());
+//
+//    }
 
 }

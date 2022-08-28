@@ -22,12 +22,10 @@ public class RestaurantService {
     @Qualifier(CommonConstant.debugLogger)
     private Log4jLogger logger;
 
-
     @Autowired
     public RestaurantService(RestaurantRepository restaurantRepository) {
         this.restaurantRepository = restaurantRepository;
     }
-
 
     public List<Restaurant> getAllRestaurant() {
         return restaurantRepository.findAll();
@@ -47,7 +45,7 @@ public class RestaurantService {
     }
 
     public Optional<Restaurant> getRestaurantById(String id) {
-        logger.debug("getRestaurantById() Current threads - " + Thread.currentThread().getName());
+        logger.debug("getRestaurantById() Current threads - {}", Thread.currentThread().getName());
         return restaurantRepository.findById(id);
     }
 
@@ -65,6 +63,5 @@ public class RestaurantService {
             logger.debug("updateRestaurantByIdAsync() Current threads - {}", Thread.currentThread().getName());
             return restaurantRepository.save(restaurant);
         });
-
     }
 }
