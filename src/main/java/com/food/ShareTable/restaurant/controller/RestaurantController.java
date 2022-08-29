@@ -11,6 +11,8 @@ import com.food.ShareTable.restaurant.exception.RestaurantExistsException;
 import com.food.ShareTable.restaurant.exception.RestaurantNotFoundException;
 import com.food.ShareTable.restaurant.mapper.RestaurantMapper;
 import com.food.ShareTable.restaurant.service.RestaurantService;
+import com.food.ShareTable.table.entity.Table;
+import com.food.ShareTable.table.service.TableService;
 import lombok.NonNull;
 import org.apache.logging.slf4j.Log4jLogger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,7 @@ public class RestaurantController {
     private final RestaurantService restaurantService;
     private final RestaurantMapper restaurantMapper;
     private final FoodService foodService;
+    private final TableService tableService;
 
     @Autowired
     private Descriptor descriptor;
@@ -39,10 +42,11 @@ public class RestaurantController {
 
 
     @Autowired
-    public RestaurantController(RestaurantService restaurantService, RestaurantMapper restaurantMapper, FoodService foodService) {
+    public RestaurantController(RestaurantService restaurantService, RestaurantMapper restaurantMapper, FoodService foodService, TableService tableService) {
         this.restaurantService = restaurantService;
         this.restaurantMapper = restaurantMapper;
         this.foodService = foodService;
+        this.tableService = tableService;
     }
 
     @GetMapping
@@ -50,23 +54,24 @@ public class RestaurantController {
 
         return restaurantService.getAllRestaurant().parallelStream()
                 .map(restaurant -> {
-                    return restaurantMapper.toDto(restaurant, new ArrayList<>());
+                    return restaurantMapper.toDto(restaurant, new ArrayList<>(), new ArrayList<>());
                 })
                 .collect(Collectors.toList());
     }
 
     @PostMapping
     public RestaurantDto create(@NonNull @RequestBody RestaurantDto restaurantDto) throws RestaurantExistsException {
-        return restaurantMapper.toDto(restaurantService.insertRestaurant(restaurantMapper.toEntity(restaurantDto)), new ArrayList<>());
+        return restaurantMapper.toDto(restaurantService.insertRestaurant(restaurantMapper.toEntity(restaurantDto)), new ArrayList<>(), new ArrayList<>());
     }
 
     //cannot exist more than one get mapping path
     //may use id for pathvariable, others for requestparam
     @GetMapping("/{id}")
     public RestaurantDto getRestaurantById(@PathVariable String id) {
-        List<Food> foodList = foodService.getAllFood();
+        List<Food> foodList = foodService.getFoodsByRestaurantId(id);
+        List<Table> tables = tableService.getTableByRestaurantIdAsync(id).join();
         return restaurantService.getRestaurantById(id)
-                .map(restaurant -> restaurantMapper.toDto(restaurant, foodList))
+                .map(restaurant -> restaurantMapper.toDto(restaurant, foodList, tables))
                 .orElseThrow(RestaurantNotFoundException::new);
 
     }
@@ -77,7 +82,7 @@ public class RestaurantController {
     public List<RestaurantDto> getRestaurantsByName(@RequestParam(name = "name") String name) {
         return restaurantService.getRestaurantByName(name).stream()
                 .map(restaurant -> {
-                    return restaurantMapper.toDto(restaurant, new ArrayList<>());
+                    return restaurantMapper.toDto(restaurant, new ArrayList<>(), new ArrayList<>());
                 })
                 .collect(Collectors.toList());
     }
@@ -92,7 +97,7 @@ public class RestaurantController {
         }).thenApply(restaurant -> {
             List<Food> lunchFoods = foodService.getFoodsByRestaurantId(restaurant.getId()).stream()
                     .filter(f -> f.getType().equals(FoodConstant.TYPE_BREAKFAST)).collect(Collectors.toList());
-            return restaurantMapper.toDto(restaurant, lunchFoods);
+            return restaurantMapper.toDto(restaurant, lunchFoods, new ArrayList<>());
         }).join();
 
     }
@@ -101,10 +106,13 @@ public class RestaurantController {
     @RequestMapping("/withFood")
     @ResponseBody
     public RestaurantDto getRestaurantWithFoodById(@RequestParam(name = "id") String id) {
-        return restaurantService.getRestaurantByIdAsync(id).thenCombine(foodService.getFoodsByRestaurantIdAsync(id), (resOptional, foodList) -> {
-            return resOptional.map(restaurant -> {
-                return restaurantMapper.toDto(restaurant, foodList);
+        return restaurantService.getRestaurantByIdAsync(id).thenCombine(foodService.getFoodsByRestaurantIdAsync(id), ((restaurantOptional, foods) -> {
+            return restaurantOptional.map(restaurant -> {
+                return restaurantMapper.toDto(restaurant, foods, null);
             }).orElseThrow(RestaurantNotFoundException::new);
+        })).thenCombine(tableService.getTableByRestaurantIdAsync(id), (restaurantDto, tables) -> {
+            restaurantDto.setTables(tables);
+            return restaurantDto;
         }).join();
     }
 
@@ -113,7 +121,7 @@ public class RestaurantController {
     public RestaurantDto getRestaurantWithLunchMenu(@RequestParam(name = "id") String id) {
         return restaurantService.getRestaurantByIdAsync(id).thenCombine(foodService.getFoodsByRestaurantIdAsync(id), ((restaurantOptional, foods) -> {
             return restaurantOptional.map(restaurant -> {
-                return restaurantMapper.toDto(restaurant, foods.stream().filter(f -> f.getType().equals(FoodConstant.TYPE_LUNCH)).collect(Collectors.toList()));
+                return restaurantMapper.toDto(restaurant, foods.stream().filter(f -> f.getType().equals(FoodConstant.TYPE_LUNCH)).collect(Collectors.toList()), new ArrayList<>());
             }).orElseThrow(RestaurantNotFoundException::new);
         })).join();
     }
@@ -123,7 +131,7 @@ public class RestaurantController {
     public RestaurantDto getRestaurantWithDinnerMenu(@RequestParam(name = "id") String id) {
         return restaurantService.getRestaurantByIdAsync(id).thenCombine(foodService.getFoodsByRestaurantIdAsync(id), ((restaurantOptional, foods) -> {
             return restaurantOptional.map(restaurant -> {
-                return restaurantMapper.toDto(restaurant, foods.stream().filter(f -> f.getType().equals(FoodConstant.TYPE_DINNER)).collect(Collectors.toList()));
+                return restaurantMapper.toDto(restaurant, foods.stream().filter(f -> f.getType().equals(FoodConstant.TYPE_DINNER)).collect(Collectors.toList()), new ArrayList<>());
             }).orElseThrow(RestaurantNotFoundException::new);
         })).join();
     }
@@ -133,7 +141,7 @@ public class RestaurantController {
     public RestaurantDto getRestaurantWithBreakfastMenu(@RequestParam(name = "id") String id) {
         return restaurantService.getRestaurantByIdAsync(id).thenCombine(foodService.getFoodsByRestaurantIdAsync(id), ((restaurantOptional, foods) -> {
             return restaurantOptional.map(restaurant -> {
-                return restaurantMapper.toDto(restaurant, foods.stream().filter(f -> f.getType().equals(FoodConstant.TYPE_BREAKFAST)).collect(Collectors.toList()));
+                return restaurantMapper.toDto(restaurant, foods.stream().filter(f -> f.getType().equals(FoodConstant.TYPE_BREAKFAST)).collect(Collectors.toList()), new ArrayList<>());
             }).orElseThrow(RestaurantNotFoundException::new);
         })).join();
     }
@@ -143,7 +151,7 @@ public class RestaurantController {
     public RestaurantDto getRestaurantWithTeaMenu(@RequestParam(name = "id") String id) {
         return restaurantService.getRestaurantByIdAsync(id).thenCombine(foodService.getFoodsByRestaurantIdAsync(id), ((restaurantOptional, foods) -> {
             return restaurantOptional.map(restaurant -> {
-                return restaurantMapper.toDto(restaurant, foods.stream().filter(f -> f.getType().equals(FoodConstant.TYPE_TEA_TIME)).collect(Collectors.toList()));
+                return restaurantMapper.toDto(restaurant, foods.stream().filter(f -> f.getType().equals(FoodConstant.TYPE_TEA_TIME)).collect(Collectors.toList()), new ArrayList<>());
             }).orElseThrow(RestaurantNotFoundException::new);
         })).join();
     }
@@ -153,7 +161,7 @@ public class RestaurantController {
     public RestaurantDto getRestaurantWithRcdMenu(@RequestParam(name = "id") String id) {
         return restaurantService.getRestaurantByIdAsync(id).thenCombine(foodService.getFoodsByRestaurantIdAsync(id), ((restaurantOptional, foods) -> {
             return restaurantOptional.map(restaurant -> {
-                return restaurantMapper.toDto(restaurant, foods.stream().filter(Food::getIsRecommended).collect(Collectors.toList()));
+                return restaurantMapper.toDto(restaurant, foods.stream().filter(Food::getIsRecommended).collect(Collectors.toList()), new ArrayList<>());
             }).orElseThrow(RestaurantNotFoundException::new);
         })).join();
     }
@@ -161,10 +169,10 @@ public class RestaurantController {
     @PutMapping("/{id}")
     public RestaurantDto updateRestaurantWithId(@PathVariable String id, @NonNull @RequestBody RestaurantDto restaurantDto) {
         Restaurant restaurant = restaurantMapper.toEntity(restaurantDto);
-        return restaurantService.updateRestaurantByIdAsync(id, restaurant)
-                .thenApply(res -> {
-                    return restaurantMapper.toDto(res, new ArrayList<>());
-                }).join();
+
+        return restaurantService.updateRestaurantByIdAsync(id, restaurant).thenCombine(foodService.getFoodsByRestaurantIdAsync(id), ((res, foods) -> {
+            return restaurantMapper.toDto(res, foods, new ArrayList<>());
+        })).join();
     }
 
 
