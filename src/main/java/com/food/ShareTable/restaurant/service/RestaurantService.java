@@ -9,7 +9,9 @@ import com.food.ShareTable.restaurant.repository.RestaurantRepository;
 import org.apache.logging.slf4j.Log4jLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +22,7 @@ public class RestaurantService {
     private final RestaurantRepository restaurantRepository;
 
     private final FoodService foodService;
+
 
     @Autowired
     @Qualifier(CommonConstant.debugLogger)
@@ -60,6 +63,7 @@ public class RestaurantService {
         });
     }
 
+
     public CompletableFuture<Restaurant> updateRestaurantByIdAsync(String id, Restaurant restaurant) {
         return CompletableFuture.supplyAsync(() -> {
             if (!restaurantRepository.existsById(id)) throw new RestaurantNotFoundException();
@@ -67,5 +71,17 @@ public class RestaurantService {
             logger.debug("updateRestaurantByIdAsync() Current threads - {}", Thread.currentThread().getName());
             return restaurantRepository.save(restaurant);
         });
+    }
+
+    @Transactional(rollbackFor = RestaurantNotFoundException.class)
+    public void testTransactional(List<String> ids) {
+        ids.stream()
+                .forEach(id -> {
+                    if (!restaurantRepository.existsById(id)) throw new RestaurantNotFoundException();
+
+                    Restaurant r = restaurantRepository.findById(id).get();
+                    r.setName("abc12e");
+                    restaurantRepository.save(r);
+                });
     }
 }

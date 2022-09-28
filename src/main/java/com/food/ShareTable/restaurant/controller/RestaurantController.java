@@ -175,5 +175,10 @@ public class RestaurantController {
         })).join();
     }
 
+    @RequestMapping("/testTransactional")
+    public void testTransactional(){
+        this.restaurantService.testTransactional(List.of("62eba5ca4cb3424326a18b1b", "sdvsdvsdv"));
+    }
+
 
 }

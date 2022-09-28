@@ -17,4 +17,5 @@ public class AppConfiguration {
         return (Log4jLogger) LoggerFactory.getLogger(CommonConstant.debugLogger);
     }
 
+
 }
