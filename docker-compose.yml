@@ -1,0 +1,8 @@
+version: "1.0"
+services:
+  backend:
+    image: app_backend
+    volumes:
+      - /Users/funglam/Desktop/web/ShareTable/log:/log
+    ports:
+      - "8080:8080"

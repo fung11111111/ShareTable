@@ -24,6 +24,10 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+//todo  try to use mongo query
+//todo try to use aggregation
+//todo try to deploy with docker and cloud
+
 @RestController
 @RequestMapping("api/v1/restaurant")
 public class RestaurantController {
@@ -177,8 +181,12 @@ public class RestaurantController {
 
     @RequestMapping("/testTransactional")
     public void testTransactional(){
-        this.restaurantService.testTransactional(List.of("62eba5ca4cb3424326a18b1b", "sdvsdvsdv"));
+        this.restaurantService.testTransactional(List.of("62eba5ca4cb3424326a18b1b"));
     }
 
+    @RequestMapping("/getByNameAndAddress")
+    public void testQuery(){
+
+    }
 
 }
