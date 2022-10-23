@@ -6,6 +6,19 @@ spring:
       uri: mongodb+srv://adminuser:adminuser@cluster0.2smm7.mongodb.net/?retryWrites=true&w=majority
       database: Restaurant
       auto-index-creation: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/development
+    username: postgres
+    password: admin
+
+  jpa:
+    properties.hibernate.format_sql: true
+#    hibernate.ddl-auto: update
+    database: POSTGRESQL
+    show-sql: true
+    repositories:
+      enabled: true
+
 
 logging:
   file:

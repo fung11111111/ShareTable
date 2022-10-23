@@ -11,6 +11,8 @@ import com.food.ShareTable.restaurant.exception.RestaurantExistsException;
 import com.food.ShareTable.restaurant.exception.RestaurantNotFoundException;
 import com.food.ShareTable.restaurant.mapper.RestaurantMapper;
 import com.food.ShareTable.restaurant.service.RestaurantService;
+import com.food.ShareTable.student.Student;
+import com.food.ShareTable.student.StudentRepository;
 import com.food.ShareTable.table.entity.Table;
 import com.food.ShareTable.table.service.TableService;
 import lombok.NonNull;
@@ -19,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -36,6 +39,7 @@ public class RestaurantController {
     private final RestaurantMapper restaurantMapper;
     private final FoodService foodService;
     private final TableService tableService;
+    private final StudentRepository studentRepository;
 
     @Autowired
     private Descriptor descriptor;
@@ -45,22 +49,33 @@ public class RestaurantController {
     private Log4jLogger logger;
 
 
+
     @Autowired
-    public RestaurantController(RestaurantService restaurantService, RestaurantMapper restaurantMapper, FoodService foodService, TableService tableService) {
+    public RestaurantController(RestaurantService restaurantService, RestaurantMapper restaurantMapper, FoodService foodService, TableService tableService, StudentRepository studentRepository1) {
         this.restaurantService = restaurantService;
         this.restaurantMapper = restaurantMapper;
         this.foodService = foodService;
         this.tableService = tableService;
+        this.studentRepository = studentRepository1;
     }
 
     @GetMapping
     public List<RestaurantDto> getRestaurants() {
 
-        return restaurantService.getAllRestaurant().parallelStream()
-                .map(restaurant -> {
-                    return restaurantMapper.toDto(restaurant, new ArrayList<>(), new ArrayList<>());
-                })
-                .collect(Collectors.toList());
+//        return restaurantService.getAllRestaurant().parallelStream()
+//                .map(restaurant -> {
+//                    return restaurantMapper.toDto(restaurant, new ArrayList<>(), new ArrayList<>());
+//                })
+//                .collect(Collectors.toList());
+
+        Student s = new Student("Tom", "Halland","hello@gamil.com","Male" ,LocalDateTime.now(),LocalDateTime.now());
+        studentRepository.save(s);
+     //   System.out.println(studentRepository.findAll().size());
+//        List<Student> students = studentRepository.findAll();
+//        students.stream()
+//                .forEach(System.out::println);
+
+        return null;
     }
 
     @PostMapping
